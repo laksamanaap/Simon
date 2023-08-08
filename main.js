@@ -8,7 +8,11 @@ userClickedPattern = [];
 //     console.log(userClickedPattern);
 //     // console.log(userChosenColor);
 //     // console.log("clicked");
-// })
+// }) 
+
+/* => Can't work cause in the es6 do not  the this value (does not bind its own this, arguments, super, or new.target) */
+/* => https://stackoverflow.com/questions/24900875/whats-the-meaning-of-an-arrow-formed-from-equals-greater-than-in-javas */
+
 
 $(".btn").on("click", function () {
     var userChosenColor = $(this).attr("id");
