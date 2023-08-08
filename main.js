@@ -2,6 +2,21 @@ buttonColours = ["red", "blue", "green", "yellow"];
 blockPattern = [];
 userClickedPattern = [];
 
+// $(".btn").on("click", () => {
+//     var userChosenColor = $(this).attr("id");
+//     userClickedPattern.push(userChosenColor);
+//     console.log(userClickedPattern);
+//     // console.log(userChosenColor);
+//     // console.log("clicked");
+// })
+
+$(".btn").on("click", function () {
+    var userChosenColor = $(this).attr("id");
+    userClickedPattern.push(userChosenColor);
+    console.log(userClickedPattern);
+    // console.log("clicked");
+})
+
 const nextSequence = () => {
     // Random pattern logic
     var randomNumber = Math.floor(Math.random() * 4);
@@ -11,12 +26,9 @@ const nextSequence = () => {
     $(`#${randomChosenColor}`).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
 
     // Audio play when the button get the same id
-    var audio = new Audio("sounds/" + randomChosenColor + ".mp3");
-    audio.play();
+    var buttonSound = new Audio("sounds/" + randomChosenColor + ".mp3");
+    buttonSound.play();
 
-    $(`#${randomChosenColor}`).on("click", () => {
-        console.log("clicked!");
-    });
 };
 
 nextSequence();
