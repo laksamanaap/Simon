@@ -36,8 +36,10 @@ $(".btn").on("click", function () {
 
     playSound(userChosenColor);
     animatePress(userChosenColor);
+    checkAnswer(userClickedPattern.length - 1);
     // console.log(userClickedPattern);
     // console.log(userChosenColor);
+
 })
 
 const nextSequence = () => {
@@ -57,11 +59,13 @@ const nextSequence = () => {
 // Function
 
 function playSound(randomChosenColor) {
+    // Play sound when click
     var buttonSound = new Audio("sounds/" + randomChosenColor + ".mp3");
     buttonSound.play();
 }
 
 function animatePress(currentColour) {
+    // Animation add when click
     let buttonAnimate = $(`#${currentColour}`);
     buttonAnimate.addClass("pressed");
 
@@ -70,4 +74,20 @@ function animatePress(currentColour) {
     }, 100);
 }
 
-// Function
+// Pattern Logic
+function checkAnswer(currentLevel) {
+    if (blockPattern[currentLevel] === userClickedPattern[currentLevel]) {
+        console.log("success");
+        //4. If the user got the most recent answer right in step 3, then check that they have finished their sequence with another if statement.
+        if (userClickedPattern.length === blockPattern.length) {
+
+            //5. Call nextSequence() after a 1000 millisecond delay.
+            setTimeout(function () {
+                nextSequence();
+            }, 1000);
+        }
+    } else {
+        console.log("wrong");
+    }
+}
+
