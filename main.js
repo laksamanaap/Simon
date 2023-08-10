@@ -11,7 +11,7 @@
 
 
 buttonColours = ["red", "blue", "green", "yellow"];
-blockPattern = [];
+gamePattern = [];
 userClickedPattern = [];
 var level = 0;
 var started = false;
@@ -28,42 +28,38 @@ $(document).on("keypress", function (e) {
     }
 });
 
+
 // Game over
 
 function startOver() {
     level = 0;
-    blockPattern = [];
+    gamePattern = [];
     started = false;
 }
 
 // Logic
 
-$(".btn").on("click", function () {
-    var userChosenColor = $(this).attr("id");
-    userClickedPattern.push(userChosenColor);
+$(".btn").on("click", function() {
+    var userChosenColour = $(this).attr("id");
+    userClickedPattern.push(userChosenColour);
+  
+    playSound(userChosenColour);
+    animatePress(userChosenColour);
+  
+    checkAnswer(userClickedPattern.length-1);
+  });
 
-    playSound(userChosenColor);
-    animatePress(userChosenColor);
-    checkAnswer(userClickedPattern.length - 1, userChosenColor);
-    console.log(userClickedPattern);
-    // console.log(userChosenColor);
-
-})
-
-const nextSequence = () => {
+  function nextSequence() {
+    userClickedPattern = [];
     level++;
     $("#level-title").text("Level " + level);
-
-    // Random pattern logic
-    var randomNumber = Math.floor(Math.random() * 4); // 0 -3
-    var randomChosenColor = buttonColours[randomNumber];
-    blockPattern.push(randomChosenColor);
-    console.log(blockPattern)
-
-    $(`#${randomChosenColor}`).fadeOut(100).fadeIn(100).fadeOut(100).fadeIn(100);
-    playSound(randomChosenColor);
-
-};
+    var randomNumber = Math.floor(Math.random() * 4);
+    var randomChosenColour = buttonColours[randomNumber];
+    gamePattern.push(randomChosenColour);
+  
+    $(`#${randomChosenColour}`).fadeIn(100).fadeOut(100).fadeIn(100);
+    playSound(randomChosenColour);
+  }
 
 // Function
 
@@ -85,33 +81,50 @@ function animatePress(currentColour) {
 }
 
 // Pattern Logic
-function checkAnswer(currentLevel, currentColour) {
-    if (blockPattern[currentLevel] === userClickedPattern[currentLevel]) {
-        console.log("success");
-        //4. If the user got the most recent answer right in step 3, then check that they have finished their sequence with another if statement.
-        if (userClickedPattern.length === blockPattern.length) {
+function checkAnswer(currentLevel) {
+    // if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
+    //     if (userClickedPattern.length === gamePattern.length) {
+    //         setTimeout(function () {
+    //             nextSequence();
+    //         }, 1000);
+    //     }
+    // } else {
+    //     console.log("wrong");
+    //     var wrong = new Audio("sounds/wrong.mp3");
+    //     wrong.play();
 
-            //5. Call nextSequence() after a 1000 millisecond delay.
-            setTimeout(function () {
-                nextSequence();
-            }, 1000);
+    //     // Game over
+    //     $("body").addClass("game-over");
+    //     setTimeout(() => {
+    //         $("body").removeClass("game-over");
+    //     }, 200);
+
+    //     // Change level title
+    //     $("#level-title").text("Game Over!,Press Space to Restart")
+    //     $("#level-title").css("font-size", "32px");
+
+    //     startOver();
+    // }
+    
+    // Fix bug
+
+    if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
+        if (userClickedPattern.length === gamePattern.length){
+          setTimeout(function () {
+            nextSequence();
+          }, 1000);
         }
-    } else {
-        console.log("wrong");
-        var wrong = new Audio("sounds/wrong.mp3");
-        wrong.play();
-
-        // Game over
+      } else {
+        playSound("wrong");
         $("body").addClass("game-over");
-        setTimeout(() => {
-            $("body").removeClass("game-over");
+        $("#level-title").text("Game Over, Press Any Key to Restart");
+  
+        // Game Over
+        setTimeout(function () {
+          $("body").removeClass("game-over");
         }, 200);
-
-        // Change level title
-        $("#level-title").text("Game Over!,Press Space to Restart")
-        $("#level-title").css("font-size", "32px");
-
+  
         startOver();
-    }
+      }
 }
 
