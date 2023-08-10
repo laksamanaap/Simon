@@ -28,6 +28,14 @@ $(document).on("keypress", function (e) {
     }
 });
 
+// Game over
+
+function startOver() {
+    level = 0;
+    blockPattern = [];
+    started = false;
+}
+
 // Logic
 
 $(".btn").on("click", function () {
@@ -100,8 +108,10 @@ function checkAnswer(currentLevel, currentColour) {
         }, 200);
 
         // Change level title
-        $("#level-title").text("Game Over!, <br>Press Space to Restart")
+        $("#level-title").text("Game Over!,Press Space to Restart")
+        $("#level-title").css("font-size", "32px");
 
+        startOver();
     }
 }
 
