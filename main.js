@@ -120,7 +120,7 @@ function checkAnswer(currentLevel) {
       
         playSound("wrong");
         $("body").addClass("game-over");
-        $("#level-title").text("Game Over, Press start key to Restart");
+        $("#level-title").text("Game Over, Press space key to Restart");
         $("#level-title").css("font-size", "32px");
         // Game Over
         setTimeout(function () {
