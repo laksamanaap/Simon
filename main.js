@@ -13,31 +13,19 @@
 buttonColours = ["red", "blue", "green", "yellow"];
 gamePattern = [];
 userClickedPattern = [];
-var level = 0;
+let level = 0;
 var started = false;
 
-// Start Game
+// Start
 
-$(document).on("keypress", function (e) {
-    if (e.code === "Space") {
-        if (!started) {
-          $("#level-title").text("Level " + level);
-          $("#level-title").css("font-size", "48px");
-            nextSequence();
-            started = true;
-        }
-    }
-});
-
-$(document).on("click", function (e) {
-        if (!started) {
+const startGame = $("#start-game").on("click", function (e) {
+  if (!started) {
           $("#level-title").text("Level " + level);
           $("#level-title").css("font-size", "48px");
             nextSequence();
             started = true;
         }
 });
-
 
 // Game over
 
@@ -49,7 +37,7 @@ function startOver() {
 
 // Logic
 
-$(".btn").on("click", function() {
+const btnOnClick = $(".btn").on("click", function() {
     var userChosenColour = $(this).attr("id");
     userClickedPattern.push(userChosenColour);
   
@@ -93,6 +81,7 @@ function animatePress(currentColour) {
 
 // Pattern Logic
 function checkAnswer(currentLevel) {
+
     // if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
     //     if (userClickedPattern.length === gamePattern.length) {
     //         setTimeout(function () {
@@ -129,13 +118,26 @@ function checkAnswer(currentLevel) {
       
         playSound("wrong");
         $("body").addClass("game-over");
-        $("#level-title").text("Game Over, Press space key to Restart");
+        $("#level-title").text("Game Over, Try again!");
         $("#level-title").css("font-size", "32px");
+        $("#level-title").append(" <a href='#' id='game-over'>By press this</a>");
+      
         // Game Over
         setTimeout(function () {
           $("body").removeClass("game-over");
         }, 200);
   
+      $("#game-over").on("click", function (e) {
+        var level = 0;
+        if (!started) {
+          $("#level-title").text("Level " + level);
+          $("#level-title").css("font-size", "48px");
+            nextSequence();
+            started = true;
+        }
+      });
+
+      
         startOver();
       }
 }
