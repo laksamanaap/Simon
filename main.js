@@ -29,6 +29,15 @@ $(document).on("keypress", function (e) {
     }
 });
 
+$(document).on("click", function (e) {
+        if (!started) {
+          $("#level-title").text("Level " + level);
+          $("#level-title").css("font-size", "48px");
+            nextSequence();
+            started = true;
+        }
+});
+
 
 // Game over
 
