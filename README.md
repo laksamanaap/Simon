@@ -15,3 +15,5 @@
 **7. Winning: Aim for high score by accurate repetition.**
 
 # Have fun testing your memory and focus in the Simon Game!
+
+© Copyright laksamanaap 2023
