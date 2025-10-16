@@ -1,14 +1,5 @@
-// $(".btn").on("click", () => {
-//     var userChosenColor = $(this).attr("id");
-//     userClickedPattern.push(userChosenColor);
-//     console.log(userClickedPattern);
-//     // console.log(userChosenColor);
-//     // console.log("clicked");
-// })
-
-/* => Can't work cause in the es6 (does not bind its own this, arguments, super, or new.target) */
-/* => https://stackoverflow.com/questions/24900875/whats-the-meaning-of-an-arrow-formed-from-equals-greater-than-in-javas */
-
+// var script = document.createElement("script");
+// script.src = "https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js";
 
 buttonColours = ["red", "blue", "green", "yellow"];
 gamePattern = [];
@@ -16,129 +7,225 @@ userClickedPattern = [];
 let level = 0;
 var started = false;
 
-// Start
-
-const startGame = $("#start-game").on("click", function (e) {
-  if (!started) {
-          $("#level-title").text("Level " + level);
-          $("#level-title").css("font-size", "48px");
-            nextSequence();
-            started = true;
-        }
-});
-
-// Game over
-
-function startOver() {
-    level = 0;
-    gamePattern = [];
-    started = false;
+// Escape HTML to prevent XSS
+function escapeHtml(text) {
+  var map = {
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;",
+  };
+  return text.replace(/[&<>"']/g, function (m) {
+    return map[m];
+  });
 }
 
-// Logic
+function loadLeaderboard() {
+  console.log("Loading leaderboard...");
 
-const btnOnClick = $(".btn").on("click", function() {
-    var userChosenColour = $(this).attr("id");
-    userClickedPattern.push(userChosenColour);
-  
-    playSound(userChosenColour);
-    animatePress(userChosenColour);
-  
-    checkAnswer(userClickedPattern.length-1);
+  $.ajax({
+    url: "get_leaderboard.php",
+    type: "GET",
+    dataType: "json",
+    success: function (data) {
+      console.log("Leaderboard data received:", data);
+      displayLeaderboard(data);
+    },
+    error: function (xhr, status, error) {
+      console.error("Error loading leaderboard:", status, error);
+      console.error("Response:", xhr.responseText);
+      $("#leaderboard-content").html(
+        '<p style="text-align: center; font-size: 11px; color: #ff3838;">Error loading data</p>'
+      );
+    },
   });
+}
 
-  function nextSequence() {
-    userClickedPattern = []; // Reset Patern
-    level++;
-      
-    $("#level-title").text("Level " + level);
-    var randomNumber = Math.floor(Math.random() * 4);
-    var randomChosenColour = buttonColours[randomNumber];
-    gamePattern.push(randomChosenColour);
-  
-    $(`#${randomChosenColour}`).fadeIn(100).fadeOut(100).fadeIn(100);
-    playSound(randomChosenColour);
+function displayLeaderboard(data) {
+  let html = "";
+
+  if (!data || data.length === 0) {
+    html =
+      '<p style="text-align: center; font-size: 11px; color: #888;">No scores yet. Be the first!</p>';
+  } else {
+    data.forEach(function (item, index) {
+      let rankEmoji = "";
+      rankEmoji = `#${index + 1}`;
+
+      let currentUserClass = item.is_current ? "current-user" : "";
+      let topThreeLeaderboard = [0, 1, 2];
+
+      const spanClass = topThreeLeaderboard.includes(index)
+        ? "rank-top-three"
+        : "rank";
+
+      html += `
+        <div class="leaderboard-item ${currentUserClass}">
+          <span class="${spanClass}">#${index + 1}</span>
+          <span class="username">${escapeHtml(item.username)}</span>
+          <span class="score">${item.score}</span>
+        </div>
+      `;
+    });
   }
 
-// Function
+  $("#leaderboard-content").html(html);
+}
+
+function updateScore(score) {
+  console.log("Updating score:", score);
+
+  $.ajax({
+    url: "update_score.php",
+    type: "POST",
+    data: { score: score },
+    dataType: "json",
+    success: function (response) {
+      console.log("Score updated:", response);
+      loadLeaderboard();
+    },
+    error: function (xhr, status, error) {
+      console.error("Error updating score:", status, error);
+      console.error("Response:", xhr.responseText);
+    },
+  });
+}
+
+$(document).ready(function () {
+  console.log("Document ready!");
+  console.log("jQuery version:", $.fn.jquery);
+
+  loadLeaderboard();
+
+  //   setInterval(loadLeaderboard, 3000);
+});
+
+// Start Game
+$("#start-game").on("click", function (e) {
+  e.preventDefault();
+  console.log("Start game clicked");
+
+  if (!started) {
+    $("#level-title").text("Level " + level);
+    $("#level-title").css("font-size", "48px");
+    nextSequence();
+
+    started = true;
+  }
+});
+
+// Button Click Handler
+$(".btn").on("click", function () {
+  if (started) {
+    var userChosenColour = $(this).attr("id");
+    console.log("Button clicked:", userChosenColour);
+
+    userClickedPattern.push(userChosenColour);
+
+    playSound(userChosenColour);
+    animatePress(userChosenColour);
+
+    checkAnswer(userClickedPattern.length - 1);
+  }
+});
+
+function nextSequence() {
+  userClickedPattern = [];
+  level++;
+
+  console.log("Next sequence - Level:", level);
+
+  $("#level-title").text("Level " + level);
+  $("#display-score").text(level - 1);
+
+  var randomNumber = Math.floor(Math.random() * 4);
+  var randomChosenColour = buttonColours[randomNumber];
+  gamePattern.push(randomChosenColour);
+
+  console.log("Game pattern:", gamePattern);
+
+  $(`#${randomChosenColour}`).fadeIn(100).fadeOut(100).fadeIn(100);
+  playSound(randomChosenColour);
+}
 
 function playSound(randomChosenColor) {
-    // Play sound when click
+  try {
     var buttonSound = new Audio("sounds/" + randomChosenColor + ".mp3");
-    buttonSound.play();
+    buttonSound.play().catch(function (error) {
+      console.warn("Audio play failed:", error);
+    });
+  } catch (error) {
+    console.warn("Audio error:", error);
+  }
 }
 
 function animatePress(currentColour) {
-    // Animation add when click
-    let buttonAnimate = $(`#${currentColour}`);
-    buttonAnimate.addClass("pressed");
+  let buttonAnimate = $(`#${currentColour}`);
+  buttonAnimate.addClass("pressed");
 
-    setTimeout(() => {
-        buttonAnimate.removeClass("pressed");
-    }, 100);
-
+  setTimeout(() => {
+    buttonAnimate.removeClass("pressed");
+  }, 100);
 }
 
-// Pattern Logic
 function checkAnswer(currentLevel) {
+  console.log(
+    "Checking answer - Current:",
+    userClickedPattern[currentLevel],
+    "Expected:",
+    gamePattern[currentLevel]
+  );
 
-    // if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
-    //     if (userClickedPattern.length === gamePattern.length) {
-    //         setTimeout(function () {
-    //             nextSequence();
-    //         }, 1000);
-    //     }
-    // } else {
-    //     console.log("wrong");
-    //     var wrong = new Audio("sounds/wrong.mp3");
-    //     wrong.play();
+  if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
+    console.log("Correct!");
 
-    //     // Game over
-    //     $("body").addClass("game-over");
-    //     setTimeout(() => {
-    //         $("body").removeClass("game-over");
-    //     }, 200);
+    if (userClickedPattern.length === gamePattern.length) {
+      console.log("Sequence complete!");
+      setTimeout(function () {
+        nextSequence();
+      }, 1000);
+    }
+  } else {
+    let finalScore = level - 1;
+    console.log("Game Over! Final score:", finalScore);
 
-    //     // Change level title
-    //     $("#level-title").text("Game Over!,Press Space to Restart")
-    //     $("#level-title").css("font-size", "32px");
+    playSound("wrong");
+    $("body").addClass("game-over");
 
-    //     startOver();
-    // }
-    
-    // Fix bug
+    $("#level-title").html(
+      `  Game Over!<br>Score: ${finalScore}<br><a href='#' id='restart'>Restart</a>`
+    );
+    $("#level-title").css("font-size", "32px");
+    $("#display-score").text(finalScore);
 
-    if (gamePattern[currentLevel] === userClickedPattern[currentLevel]) {
-        if (userClickedPattern.length === gamePattern.length){
-          setTimeout(function () {
-            nextSequence();
-          }, 1000);
-        }
-      } else {
-      
-        playSound("wrong");
-        $("body").addClass("game-over");
-        $("#level-title").text("Game Over, Try again!");
-        $("#level-title").css("font-size", "32px");
-        $("#level-title").append(" <a href='#' id='game-over'>By press this</a>");
-      
-        // Game Over
-        setTimeout(function () {
-          $("body").removeClass("game-over");
-        }, 200);
-  
-      $("#game-over").on("click", function (e) {
-        var level = 0;
-        if (!started) {
-          $("#level-title").text("Level " + level);
-          $("#level-title").css("font-size", "48px");
-            nextSequence();
-            started = true;
-        }
+    updateScore(finalScore);
+
+    setTimeout(function () {
+      $("body").removeClass("game-over");
+    }, 500);
+
+    $(document)
+      .off("click", "#restart")
+      .on("click", "#restart", function (e) {
+        e.preventDefault();
+        console.log("Restarting game...");
+
+        startOver();
+        $("#level-title").text("Level " + level);
+        $("#level-title").css("font-size", "48px");
+        nextSequence();
+        started = true;
       });
 
-      
-        startOver();
-      }
+    startOver();
+  }
 }
 
+function startOver() {
+  console.log("Starting over...");
+  level = 0;
+  gamePattern = [];
+  userClickedPattern = [];
+  started = false;
+}
