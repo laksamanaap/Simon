@@ -98,7 +98,7 @@ $(document).ready(function () {
 
   loadLeaderboard();
 
-  //   setInterval(loadLeaderboard, 3000);
+  setInterval(loadLeaderboard, 3000);
 });
 
 // Start Game
@@ -126,6 +126,7 @@ $(".btn").on("click", function () {
     playSound(userChosenColour);
     animatePress(userChosenColour);
 
+    console.log(userClickedPattern.length, "LENGTH USER CLICKED PATTERN");
     checkAnswer(userClickedPattern.length - 1);
   }
 });

@@ -18,7 +18,7 @@ if (file_exists($scoresFile)) {
 usort($scores, function($a, $b) {
     return $b['score'] - $a['score'];
 });
-
+    
 // Top 10
 $topScores = array_slice($scores, 0, 10);
 

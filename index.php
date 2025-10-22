@@ -56,11 +56,11 @@
     <h1 style="text-align: center; font-size: 24px;">Simon Game</h1>
     <form id="loginForm" method="POST" action="save_user.php">
       <label for="username">Username:</label>
-      <input type="text" id="username" name="username" required minlength="3">
+      <input type="text" id="username" name="username">
       <div class="error" id="username-error"></div>
 
       <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
+      <input type="email" id="email" name="email">
       <div class="error" id="email-error"></div>
 
       <button type="submit">Start Game</button>
@@ -86,7 +86,7 @@
         
         if (!email.includes("@")) {
           $("#email-error").text("Please enter a valid email");
-          isValid = false;
+          isValid =  false;
         }
         
         if (isValid) {
