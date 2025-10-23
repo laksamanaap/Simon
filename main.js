@@ -50,7 +50,6 @@ function displayLeaderboard(data) {
       '<p style="text-align: center; font-size: 11px; color: #888;">No scores yet. Be the first!</p>';
   } else {
     data.forEach(function (item, index) {
-      let rankEmoji = "";
       rankEmoji = `#${index + 1}`;
 
       let currentUserClass = item.is_current ? "current-user" : "";

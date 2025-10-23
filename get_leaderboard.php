@@ -28,3 +28,4 @@ foreach ($topScores as &$score) {
 
 echo json_encode($topScores);
 ?>
+
